@@ -23,19 +23,19 @@ Usage
     plex_mapper = plexmovieagentmapper.mapper.PlexMovieAgentMapper(plex_db_path)
 
     # Retrieve an IMDB id from the Plex GUID
-    imdb_id = self.plex_mapper.get_imdb_from_plex_guid(r.guid)          # imdb_id will equal tt0113243
+    imdb_id = plex_mapper.get_imdb_from_plex_guid(test_plex_guid)          # imdb_id will equal tt0113243
 
     # Retrieve a TMDB id from the Plex GUID
-    tmdb_id = self.plex_mapper.get_tmdb_from_plex_guid(r.guid)          # tmdb_id will now equal 10428
+    tmdb_id = plex_mapper.get_tmdb_from_plex_guid(test_plex_guid)          # tmdb_id will now equal 10428
 
     # Retrieve a TVDB id from the Plex GUID
-    tvdb_id = self.plex_mapper.get_tvdb_from_plex_guid(r.guid)          # tvdb_id will now equal 4534
+    tvdb_id = plex_mapper.get_tvdb_from_plex_guid(test_plex_guid)          # tvdb_id will now equal 4534
 
     # Retrieve Plex guid from an IMDB id
-    plex_guid = self.plex_mapper.get_plex_guid_from_imdb(test_imdb_id)  # plex_guid will now equal plex://movie/5d776834880197001ec93294
+    plex_guid = plex_mapper.get_plex_guid_from_imdb(test_imdb_id)  # plex_guid will now equal plex://movie/5d776834880197001ec93294
 
     # Retrieve Plex guid from an TMDB id
-    # plex_guid = self.plex_mapper.get_plex_guid_from_imdb(test_tmdb_id)  # plex_guid will now equal plex://movie/5d776834880197001ec93294
+    # plex_guid = plex_mapper.get_plex_guid_from_imdb(test_tmdb_id)  # plex_guid will now equal plex://movie/5d776834880197001ec93294
 
     # Retrieve Plex guid from an TVDB id
-    # plex_guid = self.plex_mapper.get_plex_guid_from_tvdb(test_imdb_id)  # plex_guid will now equal plex://movie/5d776834880197001ec93294
+    # plex_guid = plex_mapper.get_plex_guid_from_tvdb(test_imdb_id)  # plex_guid will now equal plex://movie/5d776834880197001ec93294
