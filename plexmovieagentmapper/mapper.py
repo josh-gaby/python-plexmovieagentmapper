@@ -42,15 +42,6 @@ class PlexMovieAgentMapper:
             return self._tvdb_hash[tvdb_id]
         return None
 
-    def get_plex_guid_from_api_item(self, item=None):
-        if item.get('id', None):
-            return self.get_plex_guid_from_imdb(item['id'])
-        elif item.get('tmdb', None):
-            return self.get_plex_guid_from_tmdb(item['tmdb_id'])
-        elif item.get('tvdb', None):
-            return self.get_plex_guid_from_tvdb(item['tvdb_id'])
-        return None
-
     def plex_guid_available(self, plex_guid=None):
         return True if plex_guid and self._plex_hash.get(plex_guid, None) else False
 
