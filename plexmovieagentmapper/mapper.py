@@ -2,7 +2,6 @@
 """Plex Movie Agent Mapper
 """
 import os.path
-import logs
 import sqlite3
 
 
