@@ -1,4 +1,4 @@
-Plex Movie Agent Mapper
+Python - PlexMovieAgentMapper
 =======================
 With the new Plex Movie Agent not providing a way to search by IMDB/TMDB/TVDB I needed a way to map IMDB/TMDB/TVDB ids to plex guid values.
 
