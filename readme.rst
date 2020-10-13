@@ -11,7 +11,7 @@ Installation
 
 .. code-block:: bash
 
-    python3 -m pip install git+https://github.com/josh-gaby/plex-movie-agent-mapper.git
+    python3 -m pip install git+https://github.com/josh-gaby/python-plexmovieagentmapper.git
 
 **Important:**
 --------------
