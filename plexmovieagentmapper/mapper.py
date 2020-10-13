@@ -8,9 +8,9 @@ import sqlite3
 class PlexMovieAgentMapper:
     def __init__(self, plex_db=None):
         if not plex_db:
-            ValueError("Database path is a required field")
+            raise ValueError("Database path is a required field")
         elif not os.path.isfile(plex_db):
-            FileNotFoundError("Database path not found")
+            raise FileNotFoundError()
         self._plex_db = plex_db
         self._current_hash = {}
         self._imdb_hash, self._tmdb_hash, self._tvdb_hash, self._plex_hash, self._details_hash = self.generate_matching_hash()
