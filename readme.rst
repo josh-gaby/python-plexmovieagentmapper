@@ -1,10 +1,21 @@
 Plex Movie Agent Mapper
 =======================
-With the new Plex Movie Agent not supporting search by IMDB/TMDB/TVDB anymore I needed a new way of accessing the API to map between the new Plex Movie Agent guids and IMDB/TMDB/TVDB ids.
+With the new Plex Movie Agent not providing a way to search by IMDB/TMDB/TVDB I needed a way to map IMDB/TMDB/TVDB ids to plex guid values.
+
+Requirements
+------------
+    * Python 3
+
+Installation
+------------
+
+.. code-block:: bash
+
+    python3 -m pip install git+https://github.com/josh-gaby/plex-movie-agent-mapper.git
 
 **Important:**
 --------------
-The plex_guid being used is **NOT** necessarily one of the new plex://move/XXXXXXXX guids, it is whatever agent guid that the library uses. If the agent being used is still the Plex Movie Agent (legacy) then this guid will be the old com.plexapp.agents.imdb://ttXXXXXXXX or com.plexapp.agents.themoviedb://XXXXXXXX format
+The plex_guid being used is **NOT** necessarily one of the new plex://move/XXXXXXXX guids, it is whatever agent guid that the library uses. If the agent being used is still the Plex Movie Agent (legacy) then this guid will be the old com.plexapp.agents.imdb://ttXXXXXXXX or com.plexapp.agents.themoviedb://XXXXXXXX format.
 
 Usage
 -----
@@ -34,7 +45,6 @@ Usage
     # Retrieve a TVDB id from the Plex GUID
     tvdb_id = plex_mapper.get_tvdb_from_plex_guid(test_plex_guid)
     print(u"TVDB id from Plex guid {} -> {}".format(test_plex_guid, tvdb_id))
-    print("")
 
     print("Test retrieving Plex guid from external agent ids:")
     # Retrieve Plex guid from an IMDB id
