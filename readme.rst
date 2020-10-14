@@ -51,12 +51,12 @@ Usage
     print("Test retrieving Plex guid from external agent ids:")
     # Retrieve Plex guid from an IMDB id
     plex_guid = plex_mapper.get_plex_guid_from_imdb(test_imdb_id)
-    print(u"Plex guid from IMDB id {} -> {}".format(test_imdb_id, test_plex_guid))
+    print(u"Plex guid from IMDB id {} -> {}".format(test_imdb_id, plex_guid))
 
     # Retrieve Plex guid from an TMDB id
-    plex_guid = plex_mapper.get_plex_guid_from_imdb(test_tmdb_id)
-    print(u"Plex guid from TMDB id {} -> {}".format(test_tmdb_id, test_plex_guid))
+    plex_guid = plex_mapper.get_plex_guid_from_tmdb(test_tmdb_id)
+    print(u"Plex guid from TMDB id {} -> {}".format(test_tmdb_id, plex_guid))
 
     # Retrieve Plex guid from an TVDB id
     plex_guid = plex_mapper.get_plex_guid_from_tvdb(test_tvdb_id)
-    print(u"Plex guid from TVDB id {} -> {}".format(test_tvdb_id, test_plex_guid))
+    print(u"Plex guid from TVDB id {} -> {}".format(test_tvdb_id, plex_guid))
