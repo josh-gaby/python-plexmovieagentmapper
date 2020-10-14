@@ -1,17 +1,20 @@
 # -*- coding: utf-8 -*-
 """Plex Movie Agent Mapper
 """
-import os.path
+import os
+from pathlib import Path
 import sqlite3
-
+from plexmovieagentmapper import dbcopy
+from plexmovieagentmapper import media
 
 class PlexMovieAgentMapper:
-    def __init__(self, plex_db=None):
+    def __init__(self, plex_db=None, copy_db=True):
         if not plex_db:
             raise ValueError("Database path is a required field")
         elif not os.path.isfile(plex_db):
             raise FileNotFoundError()
         self._plex_db = plex_db
+        self._copy_db = copy_db
         self._current_hash = {}
         self._imdb_hash, self._tmdb_hash, self._tvdb_hash, self._plex_hash, self._details_hash = self.generate_matching_hash()
 
@@ -80,96 +83,56 @@ class PlexMovieAgentMapper:
         tvdb_hash = {}
         plex_agent_hash = {}
         details_hash = {}
+
         if self._plex_db and os.path.isfile(self._plex_db):
-            # Open a connection to the database file in readonly mode
-            conn = sqlite3.connect('file:'+self._plex_db+'?mode=ro', uri=True, timeout=10)
-            # Read each result as a row
-            conn.row_factory = sqlite3.Row
-            c = conn.cursor()
-            # Build our query
-            query = 'SELECT t.tag, mdi.guid, mdi.title, mdi.year, mi.library_section_id, GROUP_CONCAT(mp.file, \';\') as file_parts ' \
-                    'FROM metadata_items mdi ' \
-                    'JOIN taggings tg ON tg.metadata_item_id = mdi.id ' \
-                    'JOIN tags t ON t.id = tg.tag_id AND t.tag_type = 314 ' \
-                    'JOIN media_items mi ON mi.metadata_item_id = mdi.id ' \
-                    'JOIN media_parts mp ON mp.media_item_id = mi.id ' \
-                    'WHERE mdi.metadata_type = 1 ' \
-                    'GROUP BY  mdi.guid, t.tag, mi.library_section_id'
-            for row in c.execute(query):
-                row_id = None
-                row_type = None
-                if row['tag'] and 'imdb' in row['tag']:
-                    row_id = row['tag'].split('imdb://')[1]
-                    row_type = 'imdb'
-                    imdb_hash[row_id] = row['guid']
-                elif row['tag'] and 'tmdb' in row['tag']:
-                    row_id = row['tag'].split('tmdb://')[1]
-                    row_type = 'tmdb'
-                    tmdb_hash[row_id] = row['guid']
-                elif row['tag'] and 'tvdb' in row['tag']:
-                    row_id = row['tag'].split('tvdb://')[1]
-                    row_type = 'tvdb'
-                    tvdb_hash[row_id] = row['guid']
+            # Does the user want to copy the database?
+            if self._copy_db:
+                db_path = dbcopy.DbCopy(self._plex_db)
+            else:
+                db_path = Path(self._plex_db)
 
-                if not plex_agent_hash.get(row['guid'], None):
-                    plex_agent_hash[row['guid']] = {'imdb': None, 'tmdb': None, 'tvdb': None}
-                    media_item = Media(row['guid'], row['title'], row['year'])
-                    details_hash[row['guid']] = media_item
+            with db_path as _db_path:
+                if os.path.isfile(_db_path):
+                    print(_db_path)
+                    # Open a connection to the database
+                    conn = sqlite3.connect(_db_path, timeout=10)
+                    # Read each result as a row
+                    conn.row_factory = sqlite3.Row
+                    c = conn.cursor()
+                    # Build our query
+                    query = 'SELECT t.tag, mdi.guid, mdi.title, mdi.year, mi.library_section_id, GROUP_CONCAT(mp.file, \';\') as file_parts ' \
+                            'FROM metadata_items mdi ' \
+                            'JOIN taggings tg ON tg.metadata_item_id = mdi.id ' \
+                            'JOIN tags t ON t.id = tg.tag_id AND t.tag_type = 314 ' \
+                            'JOIN media_items mi ON mi.metadata_item_id = mdi.id ' \
+                            'JOIN media_parts mp ON mp.media_item_id = mi.id ' \
+                            'WHERE mdi.metadata_type = 1 ' \
+                            'GROUP BY  mdi.guid, t.tag, mi.library_section_id'
+                    for row in c.execute(query):
+                        row_id = None
+                        row_type = None
+                        if row['tag'] and 'imdb' in row['tag']:
+                            row_id = row['tag'].split('imdb://')[1]
+                            row_type = 'imdb'
+                            imdb_hash[row_id] = row['guid']
+                        elif row['tag'] and 'tmdb' in row['tag']:
+                            row_id = row['tag'].split('tmdb://')[1]
+                            row_type = 'tmdb'
+                            tmdb_hash[row_id] = row['guid']
+                        elif row['tag'] and 'tvdb' in row['tag']:
+                            row_id = row['tag'].split('tvdb://')[1]
+                            row_type = 'tvdb'
+                            tvdb_hash[row_id] = row['guid']
 
-                details_hash[row['guid']].add_files(row['library_section_id'], row['file_parts'].split(';'))
+                        if not plex_agent_hash.get(row['guid'], None):
+                            plex_agent_hash[row['guid']] = {'imdb': None, 'tmdb': None, 'tvdb': None}
+                            media_item = media.Media(row['guid'], row['title'], row['year'])
+                            details_hash[row['guid']] = media_item
 
-                plex_agent_hash[row['guid']][row_type] = row_id
+                        details_hash[row['guid']].add_files(row['library_section_id'], row['file_parts'].split(';'))
 
-            conn.close()
+                        plex_agent_hash[row['guid']][row_type] = row_id
+
+                    conn.close()
 
         return imdb_hash, tmdb_hash, tvdb_hash, plex_agent_hash, details_hash
-
-
-class Media(object):
-    def __init__(self, guid=None, title=None, year=None):
-        self.guid = guid
-        self.title = title
-        self.year = year
-        self.file_parts = []
-        self.available_libraries = []
-
-    def __eq__(self, other):
-        return other is not None and self.key == other.key
-
-    def __hash__(self):
-        return hash(repr(self))
-
-    def __iter__(self):
-        yield self
-
-    def iterParts(self):
-        if self.file_parts:
-            for part in self.file_parts:
-                yield part
-
-    def add_files(self, library_id=None, file_parts=None):
-        if library_id:
-            if file_parts:
-                for part_path in file_parts:
-                    if library_id not in self.available_libraries:
-                        self.file_parts.append(Part(part_path, library_id))
-
-            self.available_libraries.append(library_id)
-            # Make it unique
-            self.available_libraries = list(set(self.available_libraries))
-
-    def filter_files(self, library_id=None):
-        if library_id:
-            tmp_file_parts = []
-            for part in self.file_parts:
-                if int(part.library_id) == int(library_id):
-                    tmp_file_parts.append(part)
-
-            self.file_parts = tmp_file_parts[:]
-
-
-class Part(object):
-    
-    def __init__(self, file=None, library_id=None):
-        self.file = file
-        self.library_id = library_id
