@@ -93,7 +93,6 @@ class PlexMovieAgentMapper:
 
             with db_path as _db_path:
                 if os.path.isfile(_db_path):
-                    print(_db_path)
                     # Open a connection to the database
                     conn = sqlite3.connect(_db_path, timeout=10)
                     # Read each result as a row
