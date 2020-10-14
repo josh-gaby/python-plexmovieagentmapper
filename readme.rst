@@ -1,5 +1,5 @@
 Python - PlexMovieAgentMapper
-=======================
+=============================
 With the new Plex Movie Agent not providing a way to search by IMDB/TMDB/TVDB I needed a way to map IMDB/TMDB/TVDB ids to plex guid values.
 
 Requirements
@@ -15,6 +15,8 @@ Installation
 
 **Important:**
 --------------
+By default the Plex database is copied on initialization so that we aren't working on a live copy that Plex is accessing, this behaviour can be disabled by setting `copy_db=False` when initializing PlexMovieAgentMapper, this is usefull if you have downloaded a copy of the database using the plexapi downloadDatabases() function and don't want too have 2 temporary copies.
+
 The plex_guid being used is **NOT** necessarily one of the new plex://move/XXXXXXXX guids, it is whatever agent guid that the library uses. If the agent being used is still the Plex Movie Agent (legacy) then this guid will be the old com.plexapp.agents.imdb://ttXXXXXXXX or com.plexapp.agents.themoviedb://XXXXXXXX format.
 
 Usage
