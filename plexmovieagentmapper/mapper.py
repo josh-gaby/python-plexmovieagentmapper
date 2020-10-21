@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
-"""Plex Movie Agent Mapper
+"""
+Plex Movie Agent Mapper
 """
 import os
 from pathlib import Path
 import sqlite3
 from plexmovieagentmapper import dbcopy
 from plexmovieagentmapper import media
+
 
 class PlexMovieAgentMapper:
     def __init__(self, plex_db=None, copy_db=True):
@@ -16,7 +18,7 @@ class PlexMovieAgentMapper:
         self._plex_db = plex_db
         self._copy_db = copy_db
         self._current_hash = {}
-        self._imdb_hash, self._tmdb_hash, self._tvdb_hash, self._plex_hash, self._details_hash = self.generate_matching_hash()
+        self._imdb_hash, self._tmdb_hash, self._tvdb_hash, self._plex_hash, self._details_hash = self._generate_matching_hash()
 
     def get_imdb_from_plex_guid(self, plex_guid=None):
         if self._plex_hash.get(plex_guid, None):
@@ -77,7 +79,7 @@ class PlexMovieAgentMapper:
                 return details
         return None
 
-    def generate_matching_hash(self):
+    def _generate_matching_hash(self):
         imdb_hash = {}
         tmdb_hash = {}
         tvdb_hash = {}

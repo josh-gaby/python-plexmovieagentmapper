@@ -12,9 +12,9 @@ class DbCopy(object):
         temp_dir = tempfile.gettempdir()
         base_path = os.path.basename(self._original_path)
         self.path = os.path.join(temp_dir,base_path)
+
         shutil.copy2(self._original_path, self.path)
         return self.path
 
     def __exit__(self,exc_type, exc_val, exc_tb):
         os.remove(self.path)
-
