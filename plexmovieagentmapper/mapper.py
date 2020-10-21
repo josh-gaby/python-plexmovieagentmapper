@@ -100,8 +100,10 @@ class PlexMovieAgentMapper:
                     # Read each result as a row
                     conn.row_factory = sqlite3.Row
                     c = conn.cursor()
-                    # Build our query
-                    query = 'SELECT t.tag, mdi.guid, mdi.title, mdi.year, mi.library_section_id, GROUP_CONCAT(mp.file, \';\') as file_parts ' \
+
+
+                    # Build a hash for Movies
+                    movie_query = 'SELECT t.tag, mdi.guid, mdi.title, mdi.year, mi.library_section_id, GROUP_CONCAT(mp.file, \';\') as file_parts ' \
                             'FROM metadata_items mdi ' \
                             'JOIN taggings tg ON tg.metadata_item_id = mdi.id ' \
                             'JOIN tags t ON t.id = tg.tag_id AND t.tag_type = 314 ' \
@@ -109,21 +111,35 @@ class PlexMovieAgentMapper:
                             'JOIN media_parts mp ON mp.media_item_id = mi.id ' \
                             'WHERE mdi.metadata_type = 1 ' \
                             'GROUP BY  mdi.guid, t.tag, mi.library_section_id'
-                    for row in c.execute(query):
+                    for row in c.execute(movie_query):
                         row_id = None
                         row_type = None
-                        if row['tag'] and 'imdb' in row['tag']:
-                            row_id = row['tag'].split('imdb://')[1]
-                            row_type = 'imdb'
-                            imdb_hash[row_id] = row['guid']
-                        elif row['tag'] and 'tmdb' in row['tag']:
-                            row_id = row['tag'].split('tmdb://')[1]
-                            row_type = 'tmdb'
-                            tmdb_hash[row_id] = row['guid']
-                        elif row['tag'] and 'tvdb' in row['tag']:
-                            row_id = row['tag'].split('tvdb://')[1]
-                            row_type = 'tvdb'
-                            tvdb_hash[row_id] = row['guid']
+                        if not row['guid'].startswith('com.plexapp.agents'):
+                            if row['tag'] and 'imdb' in row['tag']:
+                                row_id = row['tag'].split('imdb://')[1]
+                                row_type = 'imdb'
+                                imdb_hash[row_id] = row['guid']
+                            elif row['tag'] and 'tmdb' in row['tag']:
+                                row_id = row['tag'].split('tmdb://')[1]
+                                row_type = 'tmdb'
+                                tmdb_hash[row_id] = row['guid']
+                            elif row['tag'] and 'tvdb' in row['tag']:
+                                row_id = row['tag'].split('tvdb://')[1]
+                                row_type = 'tvdb'
+                                tvdb_hash[row_id] = row['guid']
+                        else:
+                            if row['guid'] and 'imdb' in row['guid']:
+                                row_id = row['guid'].split('imdb://')[1].split('?')[0]
+                                row_type = 'imdb'
+                                imdb_hash[row_id] = row['guid']
+                            elif row['guid'] and 'themoviedb' in row['guid']:
+                                row_id = row['guid'].split('themoviedb://')[1].split('?')[0]
+                                row_type = 'tmdb'
+                                tmdb_hash[row_id] = row['guid']
+                            elif row['guid'] and 'tvdb' in row['guid']:
+                                row_id = row['guid'].split('tvdb://')[1].split('?')[0]
+                                row_type = 'tvdb'
+                                tvdb_hash[row_id] = row['guid']
 
                         if not plex_agent_hash.get(row['guid'], None):
                             plex_agent_hash[row['guid']] = {'imdb': None, 'tmdb': None, 'tvdb': None}
@@ -131,6 +147,63 @@ class PlexMovieAgentMapper:
                             details_hash[row['guid']] = media_item
 
                         details_hash[row['guid']].add_files(row['library_section_id'], row['file_parts'].split(';'))
+
+                        plex_agent_hash[row['guid']][row_type] = row_id
+
+                    # Add TV Series to the hash
+                    tv_query = 'SELECT mdi.id as metadata_item_id, t.tag, mdi.guid, mdi.title, mdi.year, mdi.library_section_id ' \
+                               'FROM metadata_items mdi ' \
+                               'LEFT JOIN taggings tg ON tg.metadata_item_id = mdi.id ' \
+                               'LEFT JOIN tags t ON t.id = tg.tag_id AND t.tag_type = 314 ' \
+                               'WHERE mdi.metadata_type = 2 ' \
+                               'GROUP BY  mdi.guid, t.tag, mdi.library_section_id'
+                    c.execute(tv_query)
+                    tv_series_results = c.fetchall()
+
+                    for row in tv_series_results:
+                        row_id = None
+                        row_type = None
+                        if not row['guid'].startswith('com.plexapp.agents'):
+                            if row['tag'] and 'imdb' in row['tag']:
+                                row_id = row['tag'].split('imdb://')[1]
+                                row_type = 'imdb'
+                                imdb_hash[row_id] = row['guid']
+                            elif row['tag'] and 'tmdb' in row['tag']:
+                                row_id = row['tag'].split('tmdb://')[1]
+                                row_type = 'tmdb'
+                                tmdb_hash[row_id] = row['guid']
+                            elif row['tag'] and 'tvdb' in row['tag']:
+                                row_id = row['tag'].split('tvdb://')[1]
+                                row_type = 'tvdb'
+                                tvdb_hash[row_id] = row['guid']
+                        else:
+                            if row['guid'] and 'imdb' in row['guid']:
+                                row_id = row['guid'].split('imdb://')[1].split('?')[0]
+                                row_type = 'imdb'
+                                imdb_hash[row_id] = row['guid']
+                            elif row['guid'] and 'themoviedb' in row['guid']:
+                                row_id = row['guid'].split('themoviedb://')[1].split('?')[0]
+                                row_type = 'tmdb'
+                                tmdb_hash[row_id] = row['guid']
+                            elif row['guid'] and 'tvdb' in row['guid']:
+                                row_id = row['guid'].split('tvdb://')[1].split('?')[0]
+                                row_type = 'tvdb'
+                                tvdb_hash[row_id] = row['guid']
+
+                        if not plex_agent_hash.get(row['guid'], None):
+                            plex_agent_hash[row['guid']] = {'imdb': None, 'tmdb': None, 'tvdb': None}
+                            media_item = media.Media(row['guid'], row['title'], row['year'])
+                            details_hash[row['guid']] = media_item
+                            ep_cur = conn.cursor()
+                            # We need to build an episode list
+                            episode_query = 'SELECT GROUP_CONCAT(mp.file, \';\') as file_parts ' \
+                                            'FROM metadata_items mdi_s ' \
+                                            'JOIN metadata_items mdi_e ON mdi_e.parent_id = mdi_s.id ' \
+                                            'JOIN media_items mi ON mi.metadata_item_id = mdi_e.id ' \
+                                            'JOIN media_parts mp ON mp.media_item_id = mi.id ' \
+                                            'WHERE mdi_s.parent_id =  ' + str(row['metadata_item_id'])
+                            episodes = ep_cur.execute(episode_query)
+                            details_hash[row['guid']].add_files(row['library_section_id'], episodes.fetchone()['file_parts'].split(';'))
 
                         plex_agent_hash[row['guid']][row_type] = row_id
 

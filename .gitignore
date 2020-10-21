@@ -11,3 +11,4 @@ syntax: glob
 .cache/
 .idea/
 venv/
+/test.py
