@@ -3,6 +3,7 @@
 Plex Movie Agent Mapper
 """
 import os
+import re
 from pathlib import Path
 import sqlite3
 from plexmovieagentmapper import dbcopy
@@ -129,15 +130,15 @@ class PlexMovieAgentMapper:
                                 tvdb_hash[row_id] = row['guid']
                         else:
                             if row['guid'] and 'imdb' in row['guid']:
-                                row_id = row['guid'].split('imdb://')[1].split('?')[0]
+                                row_id = re.split(r'^((?:tt)?\d+)', row['guid'].split('imdb://')[1])[2]
                                 row_type = 'imdb'
                                 imdb_hash[row_id] = row['guid']
                             elif row['guid'] and 'themoviedb' in row['guid']:
-                                row_id = row['guid'].split('themoviedb://')[1].split('?')[0]
+                                row_id = re.split(r'^(\d+)', row['guid'].split('themoviedb://')[1])[2]
                                 row_type = 'tmdb'
                                 tmdb_hash[row_id] = row['guid']
                             elif row['guid'] and 'tvdb' in row['guid']:
-                                row_id = row['guid'].split('tvdb://')[1].split('?')[0]
+                                row_id = re.split(r'^(\d+)', row['guid'].split('tvdb://')[1])[1]
                                 row_type = 'tvdb'
                                 tvdb_hash[row_id] = row['guid']
 
@@ -178,15 +179,15 @@ class PlexMovieAgentMapper:
                                 tvdb_hash[row_id] = row['guid']
                         else:
                             if row['guid'] and 'imdb' in row['guid']:
-                                row_id = row['guid'].split('imdb://')[1].split('?')[0]
+                                row_id = re.split(r'^((?:tt)?\d+)', row['guid'].split('imdb://')[1])[2]
                                 row_type = 'imdb'
                                 imdb_hash[row_id] = row['guid']
                             elif row['guid'] and 'themoviedb' in row['guid']:
-                                row_id = row['guid'].split('themoviedb://')[1].split('?')[0]
+                                row_id = re.split(r'^(\d+)', row['guid'].split('themoviedb://')[1])[2]
                                 row_type = 'tmdb'
                                 tmdb_hash[row_id] = row['guid']
                             elif row['guid'] and 'tvdb' in row['guid']:
-                                row_id = row['guid'].split('tvdb://')[1].split('?')[0]
+                                row_id = re.split(r'^(\d+)', row['guid'].split('tvdb://')[1])[1]
                                 row_type = 'tvdb'
                                 tvdb_hash[row_id] = row['guid']
 
