@@ -89,7 +89,7 @@ A list of media files for an item can also be retrieved using the following func
             print(plex_file.file)
 
 
-**Important information about get details functions**
+**Important information about the get_details_xxx functions**
 
     - For a TV series these functions return a list of ALL episodes, they are not organised into seasons.
-    - All of the `get_details_from_XXX` functions take a second parameter `library_id` if provided then media files will only be returned if they are available in that library.
+    - All of these functions take a second parameter `library_id` if provided then media files will only be returned if they are available in that library, if not provided all media files will be returned.
