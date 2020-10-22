@@ -63,26 +63,30 @@ Usage
     print(u"Plex guid from TVDB id {} -> {}".format(test_tvdb_id, plex_guid))
 
 
-A list of media files for an item can also be retrieved using:
+A list of media files for an item can also be retrieved using the following functions:
 
 
 .. code-block:: python
 
     imdb_details = plex_mapper.get_details_from_imdb(imdb_id=test_imdb_id)
-    for imdb_part in imdb_details.files():
-        print(imdb_part.file)
+    if imdb_details:
+        for imdb_file in imdb_details.files():
+            print(imdb_file.file)
 
     tmdb_details = plex_mapper.get_details_from_tmdb(tmdb_id=test_tmdb_id)
-    for tmdb_part in tmdb_details.files():
-        print(tmdb_part.file)
+    if tmdb_details:
+        for tmdb_file in tmdb_details.files():
+            print(tmdb_file.file)
 
     tvdb_details = plex_mapper.get_details_from_tvdb(tvdb_id=test_tvdb_id)
-    for tvdb_part in tvdb_details.files():
-        print(tvdb_part.file)
+    if tvdb_details:
+        for tvdb_file in tvdb_details.files():
+            print(tvdb_file.file)
 
     plex_details = plex_mapper.get_details_from_plex_guid(plex_guid=test_plex_guid)
-    for plex_part in plex_details.files():
-        print(plex_part.file)
+    if plex_details:
+        for plex_file in plex_details.files():
+            print(plex_file.file)
 
 
 **Important information about get details functions**
