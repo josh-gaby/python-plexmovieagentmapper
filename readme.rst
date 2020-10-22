@@ -10,6 +10,7 @@ The plex_guid returned is **NOT** necessarily one of the new plex://move/XXXXXXX
 Requirements
 ------------
     * Python 3
+    * Plex
 
 Installation
 ------------
@@ -60,3 +61,31 @@ Usage
     # Retrieve Plex guid from an TVDB id
     plex_guid = plex_mapper.get_plex_guid_from_tvdb(test_tvdb_id)
     print(u"Plex guid from TVDB id {} -> {}".format(test_tvdb_id, plex_guid))
+
+
+A list of media files for an item can also be retrieved using:
+
+
+.. code-block:: python
+
+    imdb_details = plex_mapper.get_details_from_imdb(imdb_id=test_imdb_id)
+    for imdb_part in imdb_details.files():
+        print(imdb_part.file)
+
+    tmdb_details = plex_mapper.get_details_from_tmdb(tmdb_id=test_tmdb_id)
+    for tmdb_part in tmdb_details.files():
+        print(tmdb_part.file)
+
+    tvdb_details = plex_mapper.get_details_from_tvdb(tvdb_id=test_tvdb_id)
+    for tvdb_part in tvdb_details.files():
+        print(tvdb_part.file)
+
+    plex_details = plex_mapper.get_details_from_plex_guid(plex_guid=test_plex_guid)
+    for plex_part in plex_details.files():
+        print(plex_part.file)
+
+
+**Important information about get details functions**
+
+    - For a TV series these functions return a list of ALL episodes, they are not organised into seasons.
+    - All of the `get_details_from_XXX` functions take a second parameter `library_id` if provided then media files will only be returned if they are available in that library.

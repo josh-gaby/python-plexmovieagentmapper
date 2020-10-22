@@ -18,7 +18,7 @@ class Media(object):
     def __iter__(self):
         yield self
 
-    def iterParts(self):
+    def files(self):
         if self.file_parts:
             for part in self.file_parts:
                 yield part
