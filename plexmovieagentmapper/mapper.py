@@ -12,6 +12,11 @@ from plexmovieagentmapper import media
 
 class PlexMovieAgentMapper:
     def __init__(self, plex_db=None, copy_db=True):
+        """
+
+        :param plex_db:
+        :param copy_db:
+        """
         if not plex_db:
             raise ValueError("Database path is a required field")
         elif not os.path.isfile(plex_db):
@@ -22,57 +27,117 @@ class PlexMovieAgentMapper:
         self._imdb_hash, self._tmdb_hash, self._tvdb_hash, self._plex_hash, self._details_hash = self._generate_matching_hash()
 
     def get_imdb_from_plex_guid(self, plex_guid=None):
+        """Returns an IMDB id for a given Plex GUID if a match is found.
+
+        :param plex_guid:
+        :return:
+        """
         if self._plex_hash.get(plex_guid, None):
             return self._plex_hash[plex_guid]['imdb']
         return None
 
     def get_tmdb_from_plex_guid(self, plex_guid=None):
+        """Returns a TMDB id for a given Plex GUID if a match is found.
+
+        :param plex_guid:
+        :return:
+        """
         if self._plex_hash.get(plex_guid, None):
             return self._plex_hash[plex_guid]['tmdb']
         return None
 
     def get_tvdb_from_plex_guid(self, plex_guid=None):
+        """Returns a TVDB id for a given Plex GUID if a match is found.
+
+        :param plex_guid:
+        :return:
+        """
         if self._plex_hash.get(plex_guid, None):
             return self._plex_hash[plex_guid]['tvdb']
         return None
 
     def get_plex_guid_from_imdb(self, imdb_id=None):
+        """Returns a Plex GUID for a given IMDB id if a match is found.
+
+        :param imdb_id:
+        :return:
+        """
         if self._imdb_hash.get(imdb_id, None):
             return self._imdb_hash[imdb_id]
         return None
 
     def get_plex_guid_from_tmdb(self, tmdb_id=None):
+        """Returns a Plex GUID for a given TMDB id if a match is found.
+
+        :param tmdb_id:
+        :return:
+        """
         if self._tmdb_hash.get(tmdb_id, None):
             return self._tmdb_hash[tmdb_id]
         return None
 
     def get_plex_guid_from_tvdb(self, tvdb_id=None):
+        """Returns a Plex GUID for a given TVDB id if a match is found.
+
+        :param tvdb_id:
+        :rtype: bool
+        :return:
+        """
         if self._tvdb_hash.get(tvdb_id, None):
             return self._tvdb_hash[tvdb_id]
         return None
 
     def plex_guid_available(self, plex_guid=None):
+        """Check if a Plex GUID is in the hash
+
+        :param plex_guid:
+        :return:
+        """
         return True if plex_guid and self._plex_hash.get(plex_guid, None) else False
 
     def get_details_from_imdb(self, library_id=None, imdb_id=None):
+        """Get media item details for a given IMDB id.
+
+        :param library_id:
+        :param imdb_id:
+        :return:
+        """
         if imdb_id and self._imdb_hash.get(imdb_id, None):
             details = self._details_hash.get(self._imdb_hash[imdb_id])
             return details if not library_id or library_id in details.available_libraries else None
         return None
 
     def get_details_from_tmdb(self, library_id=None, tmdb_id=None):
+        """Get media item details for a given TMDB id.
+
+        :param library_id:
+        :param tmdb_id:
+        :return:
+        """
         if tmdb_id and self._tmdb_hash.get(tmdb_id, None):
             details = self._details_hash.get(self._tmdb_hash[tmdb_id])
             return details if not library_id or library_id in details.available_libraries else None
         return None
 
     def get_details_from_tvdb(self, library_id=None, tvdb_id=None):
+        """Get media item details for a given TVDB id.
+
+        :param library_id:
+        :param tvdb_id:
+        :return:
+        """
         if tvdb_id and self._tmdb_hash.get(tvdb_id, None):
             details = self._details_hash.get(self._tvdb_hash[tvdb_id])
             return details if not library_id or library_id in details.available_libraries else None
         return None
 
     def get_details_from_plex_guid(self, library_id=None, plex_guid=None):
+        """Get media item details for a given Plex GUID.
+
+        :param library_id:
+        :param plex_guid:
+        :return:
+        """
         if plex_guid:
             details = self._details_hash.get(plex_guid, None)
             if details and library_id:
@@ -81,6 +146,10 @@ class PlexMovieAgentMapper:
         return None
 
     def _generate_matching_hash(self):
+        """Generate a series of lookup hashes
+
+        :return:
+        """
         imdb_hash = {}
         tmdb_hash = {}
         tvdb_hash = {}
@@ -101,7 +170,6 @@ class PlexMovieAgentMapper:
                     # Read each result as a row
                     conn.row_factory = sqlite3.Row
                     c = conn.cursor()
-
 
                     # Build a hash for Movies
                     movie_query = 'SELECT t.tag, mdi.guid, mdi.title, mdi.year, mi.library_section_id, GROUP_CONCAT(mp.file, \';\') as file_parts ' \
