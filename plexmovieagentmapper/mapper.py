@@ -4,6 +4,7 @@ Plex Movie Agent Mapper
 """
 import os
 import re
+import logging
 from pathlib import Path
 import sqlite3
 from plexmovieagentmapper import dbcopy
@@ -11,7 +12,7 @@ from plexmovieagentmapper import media
 
 
 class PlexMovieAgentMapper:
-    def __init__(self, plex_db=None, copy_db=True):
+    def __init__(self, plex_db=None, copy_db=True, debug=False):
         """
 
         :param plex_db:
@@ -21,6 +22,11 @@ class PlexMovieAgentMapper:
             raise ValueError("Database path is a required field")
         elif not os.path.isfile(plex_db):
             raise FileNotFoundError()
+
+        self._debug = debug
+        if self._debug:
+            logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', level=logging.INFO)
+
         self._plex_db = plex_db
         self._copy_db = copy_db
         self._current_hash = {}
@@ -197,18 +203,27 @@ class PlexMovieAgentMapper:
                                 row_type = 'tvdb'
                                 tvdb_hash[row_id] = row['guid']
                         else:
-                            if row['guid'] and 'imdb' in row['guid']:
-                                row_id = re.split(r'^((?:tt)?\d+)', row['guid'].split('imdb://')[1])[2]
+                            if row['guid'] and 'imdb://' in row['guid']:
+                                if self._debug:
+                                    logging.info(u"Matching ({}) for IMDB".format(row['guid']))
+                                row_id = re.split(r'^((?:tt)?\d+)', row['guid'].split('imdb://')[1])[1]
                                 row_type = 'imdb'
                                 imdb_hash[row_id] = row['guid']
-                            elif row['guid'] and 'themoviedb' in row['guid']:
-                                row_id = re.split(r'^(\d+)', row['guid'].split('themoviedb://')[1])[2]
+                            elif row['guid'] and 'themoviedb://' in row['guid']:
+                                if self._debug:
+                                    logging.info(u"Matching ({}) for TMDB".format(row['guid']))
+                                row_id = re.split(r'^(\d+)', row['guid'].split('themoviedb://')[1])[1]
                                 row_type = 'tmdb'
                                 tmdb_hash[row_id] = row['guid']
-                            elif row['guid'] and 'tvdb' in row['guid']:
-                                row_id = re.split(r'^(\d+)', row['guid'].split('tvdb://')[1])[1]
+                            elif row['guid'] and 'thetvdb://' in row['guid']:
+                                if self._debug:
+                                    logging.info(u"Matching ({}) for TVDB".format(row['guid']))
+                                row_id = re.split(r'^(\d+)', row['guid'].split('thetvdb://')[1])[1]
                                 row_type = 'tvdb'
                                 tvdb_hash[row_id] = row['guid']
+                            else:
+                                if self._debug:
+                                    logging.info(u"Agent not matched for Movie ({})".format(row['guid']))
 
                         if not plex_agent_hash.get(row['guid'], None):
                             plex_agent_hash[row['guid']] = {'imdb': None, 'tmdb': None, 'tvdb': None}
@@ -246,18 +261,27 @@ class PlexMovieAgentMapper:
                                 row_type = 'tvdb'
                                 tvdb_hash[row_id] = row['guid']
                         else:
-                            if row['guid'] and 'imdb' in row['guid']:
-                                row_id = re.split(r'^((?:tt)?\d+)', row['guid'].split('imdb://')[1])[2]
+                            if row['guid'] and 'imdb://' in row['guid']:
+                                if self._debug:
+                                    logging.info(u"Matching ({}) for IMDB".format(row['guid']))
+                                row_id = re.split(r'^((?:tt)?\d+)', row['guid'].split('imdb://')[1])[1]
                                 row_type = 'imdb'
                                 imdb_hash[row_id] = row['guid']
-                            elif row['guid'] and 'themoviedb' in row['guid']:
-                                row_id = re.split(r'^(\d+)', row['guid'].split('themoviedb://')[1])[2]
+                            elif row['guid'] and 'themoviedb://' in row['guid']:
+                                if self._debug:
+                                    logging.info(u"Matching ({}) for TMDB".format(row['guid']))
+                                row_id = re.split(r'^(\d+)', row['guid'].split('themoviedb://')[1])[1]
                                 row_type = 'tmdb'
                                 tmdb_hash[row_id] = row['guid']
-                            elif row['guid'] and 'tvdb' in row['guid']:
-                                row_id = re.split(r'^(\d+)', row['guid'].split('tvdb://')[1])[1]
+                            elif row['guid'] and 'thetvdb://' in row['guid']:
+                                if self._debug:
+                                    logging.info(u"Matching ({}) for TVDB".format(row['guid']))
+                                row_id = re.split(r'^(\d+)', row['guid'].split('thetvdb://')[1])[1]
                                 row_type = 'tvdb'
                                 tvdb_hash[row_id] = row['guid']
+                            else:
+                                if self._debug:
+                                    logging.info(u"Agent not matched TV series ({})".format(row['guid']))
 
                         if not plex_agent_hash.get(row['guid'], None):
                             plex_agent_hash[row['guid']] = {'imdb': None, 'tmdb': None, 'tvdb': None}
