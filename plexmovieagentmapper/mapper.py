@@ -228,7 +228,7 @@ class PlexMovieAgentMapper:
                                 if self._debug:
                                     logging.info(u"Agent not matched for Movie ({})".format(row['guid']))
 
-                        if not plex_agent_hash.get(row['guid'], None):
+                        if not plex_agent_hash.get(row['guid'], None) and row_id is not None and row_type is not None:
                             if self._debug:
                                 logging.info(u"Finding media files for {} ({})".format(row['title'], row['year']))
 
@@ -236,9 +236,10 @@ class PlexMovieAgentMapper:
                             media_item = media.Media(row['guid'], row['title'], row['year'])
                             details_hash[row['guid']] = media_item
 
-                        details_hash[row['guid']].add_files(row['library_section_id'], row['file_parts'].split(';'))
+                        if plex_agent_hash.get(row['guid'], None):
+                            details_hash[row['guid']].add_files(row['library_section_id'], row['file_parts'].split(';'))
 
-                        plex_agent_hash[row['guid']][row_type] = row_id
+                            plex_agent_hash[row['guid']][row_type] = row_id
 
                     # Add TV Series to the hash
                     tv_query = 'SELECT mdi.id as metadata_item_id, t.tag, mdi.guid, mdi.title, mdi.year, mdi.library_section_id ' \
@@ -292,9 +293,10 @@ class PlexMovieAgentMapper:
                                 if self._debug:
                                     logging.info(u"Agent not matched TV series ({})".format(row['guid']))
 
-                        if not plex_agent_hash.get(row['guid'], None) and row_id:
+                        if not plex_agent_hash.get(row['guid'], None) and row_id is not None and row_type is not None:
                             if self._debug:
                                 logging.info(u"Finding media files for {} ({})".format(row['title'], row['year']))
+
                             plex_agent_hash[row['guid']] = {'imdb': None, 'tmdb': None, 'tvdb': None}
                             media_item = media.Media(row['guid'], row['title'], row['year'])
                             details_hash[row['guid']] = media_item
@@ -311,6 +313,7 @@ class PlexMovieAgentMapper:
                             ep_list = episodes.fetchone()['file_parts'].split(';')
                             details_hash[row['guid']].add_files(row['library_section_id'], ep_list)
 
+                        if plex_agent_hash.get(row['guid'], None):
                             plex_agent_hash[row['guid']][row_type] = row_id
 
                     conn.close()
