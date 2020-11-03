@@ -206,18 +206,21 @@ class PlexMovieAgentMapper:
                             if row['guid'] and 'imdb://' in row['guid']:
                                 if self._debug:
                                     logging.info(u"Matching ({}) for IMDB".format(row['guid']))
+
                                 row_id = re.split(r'^((?:tt)?\d+)', row['guid'].split('imdb://')[1])[1]
                                 row_type = 'imdb'
                                 imdb_hash[row_id] = row['guid']
                             elif row['guid'] and 'themoviedb://' in row['guid']:
                                 if self._debug:
                                     logging.info(u"Matching ({}) for TMDB".format(row['guid']))
+
                                 row_id = re.split(r'^(\d+)', row['guid'].split('themoviedb://')[1])[1]
                                 row_type = 'tmdb'
                                 tmdb_hash[row_id] = row['guid']
                             elif row['guid'] and 'thetvdb://' in row['guid']:
                                 if self._debug:
                                     logging.info(u"Matching ({}) for TVDB".format(row['guid']))
+
                                 row_id = re.split(r'^(\d+)', row['guid'].split('thetvdb://')[1])[1]
                                 row_type = 'tvdb'
                                 tvdb_hash[row_id] = row['guid']
@@ -226,6 +229,9 @@ class PlexMovieAgentMapper:
                                     logging.info(u"Agent not matched for Movie ({})".format(row['guid']))
 
                         if not plex_agent_hash.get(row['guid'], None):
+                            if self._debug:
+                                logging.info(u"Finding media files for {} ({})".format(row['title'], row['year']))
+
                             plex_agent_hash[row['guid']] = {'imdb': None, 'tmdb': None, 'tvdb': None}
                             media_item = media.Media(row['guid'], row['title'], row['year'])
                             details_hash[row['guid']] = media_item
@@ -264,18 +270,21 @@ class PlexMovieAgentMapper:
                             if row['guid'] and 'imdb://' in row['guid']:
                                 if self._debug:
                                     logging.info(u"Matching ({}) for IMDB".format(row['guid']))
+
                                 row_id = re.split(r'^((?:tt)?\d+)', row['guid'].split('imdb://')[1])[1]
                                 row_type = 'imdb'
                                 imdb_hash[row_id] = row['guid']
                             elif row['guid'] and 'themoviedb://' in row['guid']:
                                 if self._debug:
                                     logging.info(u"Matching ({}) for TMDB".format(row['guid']))
+
                                 row_id = re.split(r'^(\d+)', row['guid'].split('themoviedb://')[1])[1]
                                 row_type = 'tmdb'
                                 tmdb_hash[row_id] = row['guid']
                             elif row['guid'] and 'thetvdb://' in row['guid']:
                                 if self._debug:
                                     logging.info(u"Matching ({}) for TVDB".format(row['guid']))
+
                                 row_id = re.split(r'^(\d+)', row['guid'].split('thetvdb://')[1])[1]
                                 row_type = 'tvdb'
                                 tvdb_hash[row_id] = row['guid']
@@ -284,6 +293,8 @@ class PlexMovieAgentMapper:
                                     logging.info(u"Agent not matched TV series ({})".format(row['guid']))
 
                         if not plex_agent_hash.get(row['guid'], None) and row_id:
+                            if self._debug:
+                                logging.info(u"Finding media files for {} ({})".format(row['title'], row['year']))
                             plex_agent_hash[row['guid']] = {'imdb': None, 'tmdb': None, 'tvdb': None}
                             media_item = media.Media(row['guid'], row['title'], row['year'])
                             details_hash[row['guid']] = media_item
