@@ -132,7 +132,7 @@ class PlexMovieAgentMapper:
         :param tvdb_id:
         :return:
         """
-        if tvdb_id and self._tmdb_hash.get(tvdb_id, None):
+        if tvdb_id and self._tvdb_hash.get(tvdb_id, None):
             details = self._details_hash.get(self._tvdb_hash[tvdb_id])
             return details if not library_id or library_id in details.available_libraries else None
         return None
@@ -283,7 +283,7 @@ class PlexMovieAgentMapper:
                                 if self._debug:
                                     logging.info(u"Agent not matched TV series ({})".format(row['guid']))
 
-                        if not plex_agent_hash.get(row['guid'], None):
+                        if not plex_agent_hash.get(row['guid'], None) and row_id:
                             plex_agent_hash[row['guid']] = {'imdb': None, 'tmdb': None, 'tvdb': None}
                             media_item = media.Media(row['guid'], row['title'], row['year'])
                             details_hash[row['guid']] = media_item
@@ -295,10 +295,12 @@ class PlexMovieAgentMapper:
                                             'JOIN media_items mi ON mi.metadata_item_id = mdi_e.id ' \
                                             'JOIN media_parts mp ON mp.media_item_id = mi.id ' \
                                             'WHERE mdi_s.parent_id =  ' + str(row['metadata_item_id'])
-                            episodes = ep_cur.execute(episode_query)
-                            details_hash[row['guid']].add_files(row['library_section_id'], episodes.fetchone()['file_parts'].split(';'))
 
-                        plex_agent_hash[row['guid']][row_type] = row_id
+                            episodes = ep_cur.execute(episode_query)
+                            ep_list = episodes.fetchone()['file_parts'].split(';')
+                            details_hash[row['guid']].add_files(row['library_section_id'], ep_list)
+
+                            plex_agent_hash[row['guid']][row_type] = row_id
 
                     conn.close()
 

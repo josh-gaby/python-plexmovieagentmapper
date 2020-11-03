@@ -34,7 +34,7 @@ Usage
     test_tvdb_id = '4534'
 
     # Initialize the mapper with the required DB path
-    plex_mapper = plexmovieagentmapper.mapper.PlexMovieAgentMapper(plex_db_path)
+    plex_mapper = plexmovieagentmapper.mapper.PlexMovieAgentMapper(plex_db=plex_db_path)
 
     print("Test retrieving external agent id from Plex guid:")
     # Retrieve an IMDB id from the Plex GUID
@@ -63,8 +63,18 @@ Usage
     print(u"Plex guid from TVDB id {} -> {}".format(test_tvdb_id, plex_guid))
 
 
-A list of media files for an item can also be retrieved using the following functions:
+Debugging
+---------
+You can enable debugging by using the initializer as follows:
 
+.. code-block:: python
+
+    # Initialize the mapper with the required DB path and debugging enabled
+    plex_mapper = plexmovieagentmapper.mapper.PlexMovieAgentMapper(plex_db=plex_db_path, debug=True)
+
+Media data
+----------
+A list of media files for an item can also be retrieved using the following functions:
 
 .. code-block:: python
 
