@@ -178,12 +178,13 @@ class PlexMovieAgentMapper:
                     c = conn.cursor()
 
                     # Build a hash for Movies
-                    movie_query = 'SELECT t.tag, mdi.guid, mdi.title, mdi.year, mi.library_section_id, GROUP_CONCAT(mp.file, \';\') as file_parts ' \
+                    movie_query = 'SELECT mdi.id as metadata_item_id, t.tag, mdi.guid, mdi.title, mdi.year, mi.library_section_id, GROUP_CONCAT(mp.file, \';\') as file_parts, ls.uuid ' \
                             'FROM metadata_items mdi ' \
                             'JOIN taggings tg ON tg.metadata_item_id = mdi.id ' \
                             'JOIN tags t ON t.id = tg.tag_id AND t.tag_type = 314 ' \
                             'JOIN media_items mi ON mi.metadata_item_id = mdi.id ' \
                             'JOIN media_parts mp ON mp.media_item_id = mi.id ' \
+                            'JOIN library_sections ls ON ls.id = mdi.library_section_id ' \
                             'WHERE mdi.metadata_type = 1 ' \
                             'GROUP BY  mdi.guid, t.tag, mi.library_section_id'
                     for row in c.execute(movie_query):
@@ -233,7 +234,7 @@ class PlexMovieAgentMapper:
                                 logging.info(u"Finding media files for {} ({})".format(row['title'], row['year']))
 
                             plex_agent_hash[row['guid']] = {'imdb': None, 'tmdb': None, 'tvdb': None}
-                            media_item = media.Media(row['guid'], row['title'], row['year'], 'Video')
+                            media_item = media.Media(row['guid'], row['title'], row['year'], 'Video', row['metadata_item_id'], row['uuid'])
                             details_hash[row['guid']] = media_item
 
                         if plex_agent_hash.get(row['guid'], None):
@@ -242,8 +243,9 @@ class PlexMovieAgentMapper:
                             plex_agent_hash[row['guid']][row_type] = row_id
 
                     # Add TV Series to the hash
-                    tv_query = 'SELECT mdi.id as metadata_item_id, t.tag, mdi.guid, mdi.title, mdi.year, mdi.library_section_id ' \
+                    tv_query = 'SELECT mdi.id as metadata_item_id, t.tag, mdi.guid, mdi.title, mdi.year, mdi.library_section_id, ls.uuid ' \
                                'FROM metadata_items mdi ' \
+                               'JOIN library_sections ls ON ls.id = mdi.library_section_id ' \
                                'LEFT JOIN taggings tg ON tg.metadata_item_id = mdi.id ' \
                                'LEFT JOIN tags t ON t.id = tg.tag_id AND t.tag_type = 314 ' \
                                'WHERE mdi.metadata_type = 2 ' \
@@ -298,7 +300,7 @@ class PlexMovieAgentMapper:
                                 logging.info(u"Finding media files for {} ({})".format(row['title'], row['year']))
 
                             plex_agent_hash[row['guid']] = {'imdb': None, 'tmdb': None, 'tvdb': None}
-                            media_item = media.Media(row['guid'], row['title'], row['year'], 'Video')
+                            media_item = media.Media(row['guid'], row['title'], row['year'], 'Video', row['metadata_item_id'], row['uuid'])
                             details_hash[row['guid']] = media_item
                             ep_cur = conn.cursor()
                             # We need to build an episode list

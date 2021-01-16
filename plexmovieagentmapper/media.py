@@ -1,14 +1,16 @@
 from plexmovieagentmapper import part
-
+from plexmovieagentmapper import section
 
 class Media(object):
-    def __init__(self, guid=None, title=None, year=None, listType=None):
+    def __init__(self, guid=None, title=None, year=None, list_type=None, rating_key=None, uuid=None):
         self.guid = guid
         self.title = title
         self.year = year
         self.file_parts = []
         self.available_libraries = []
-        self.listType = listType
+        self.listType = list_type
+        self.ratingKey = rating_key
+        self.library_uuid = uuid
 
     def __eq__(self, other):
         return other is not None and self.key == other.key
@@ -43,3 +45,6 @@ class Media(object):
                     tmp_file_parts.append(part)
 
             self.file_parts = tmp_file_parts[:]
+
+    def section(self):
+        return section.Section(self.library_uuid)
