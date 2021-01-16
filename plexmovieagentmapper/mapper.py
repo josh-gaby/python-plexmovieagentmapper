@@ -233,7 +233,7 @@ class PlexMovieAgentMapper:
                                 logging.info(u"Finding media files for {} ({})".format(row['title'], row['year']))
 
                             plex_agent_hash[row['guid']] = {'imdb': None, 'tmdb': None, 'tvdb': None}
-                            media_item = media.Media(row['guid'], row['title'], row['year'])
+                            media_item = media.Media(row['guid'], row['title'], row['year'], 'Video')
                             details_hash[row['guid']] = media_item
 
                         if plex_agent_hash.get(row['guid'], None):
@@ -298,7 +298,7 @@ class PlexMovieAgentMapper:
                                 logging.info(u"Finding media files for {} ({})".format(row['title'], row['year']))
 
                             plex_agent_hash[row['guid']] = {'imdb': None, 'tmdb': None, 'tvdb': None}
-                            media_item = media.Media(row['guid'], row['title'], row['year'])
+                            media_item = media.Media(row['guid'], row['title'], row['year'], 'Video')
                             details_hash[row['guid']] = media_item
                             ep_cur = conn.cursor()
                             # We need to build an episode list

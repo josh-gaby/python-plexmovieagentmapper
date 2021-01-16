@@ -2,12 +2,13 @@ from plexmovieagentmapper import part
 
 
 class Media(object):
-    def __init__(self, guid=None, title=None, year=None):
+    def __init__(self, guid=None, title=None, year=None, listType=None):
         self.guid = guid
         self.title = title
         self.year = year
         self.file_parts = []
         self.available_libraries = []
+        self.listType = listType
 
     def __eq__(self, other):
         return other is not None and self.key == other.key
